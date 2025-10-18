@@ -31,7 +31,7 @@ export default function RootLayout({
       >
         <TrpcProvider>
           <Navbar />
-          {children}
+          <main className="pt-16">{children}</main>
         </TrpcProvider>
       </body>
     </html>

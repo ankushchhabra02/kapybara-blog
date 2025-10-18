@@ -2,7 +2,10 @@ import { z } from "zod";
 import { publicProcedure, router } from "../trpc";
 import { posts, postCategories, categories } from "@/server/db/schema";
 import { eq } from "drizzle-orm";
+import type { InferSelectModel } from "drizzle-orm";
 
+type Post = InferSelectModel<typeof posts>;
+type Category = InferSelectModel<typeof categories>;
 export const postRouter = router({
   getAll: publicProcedure.query(async ({ ctx }) => {
     // Fetch all posts first
@@ -40,6 +43,7 @@ export const postRouter = router({
         slug: z.string().min(1),
         imageUrl: z.string().url().optional(),
         categoryIds: z.array(z.number()).optional(), // <-- multiple categories
+        published: z.boolean().optional().default(false),
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -51,6 +55,7 @@ export const postRouter = router({
           content: input.content,
           slug: input.slug,
           imageUrl: input.imageUrl ?? null,
+          published: input.published ?? false,
           createdAt: new Date(),
           updatedAt: new Date(),
         })
@@ -119,5 +124,36 @@ export const postRouter = router({
       // Delete post
       await ctx.db.delete(posts).where(eq(posts.id, input.id));
       return { success: true };
+    }),
+  getBySlug: publicProcedure
+    .input(z.object({ slug: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const post = await ctx.db.query.posts.findFirst({
+        where: eq(posts.slug, input.slug),
+        with: {
+          postCategories: {
+            with: {
+              category: true,
+            },
+          },
+        },
+      });
+
+      if (!post) return null;
+
+      // 🩹 Explicitly tell TypeScript what this relation is
+      const postCategoriesTyped = post.postCategories as {
+        category: Category;
+      }[];
+
+      const categories = postCategoriesTyped.map((pc) => ({
+        id: pc.category.id,
+        name: pc.category.name,
+      }));
+
+      return {
+        ...post,
+        categories,
+      };
     }),
 });

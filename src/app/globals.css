@@ -5,13 +5,24 @@ html.dark {
   color: #f9fafb;
 }
 
-/* Glass effect for cards */
+/* Glass effect for cards
 .glass-card {
   backdrop-filter: blur(10px);
   background-color: rgba(255, 255, 255, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 12px;
   transition: transform 0.2s, box-shadow 0.2s;
+} */
+.glass-card {
+  backdrop-filter: blur(10px);
+  background-color: rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  border-radius: 12px;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+html.dark .glass-card {
+  background-color: rgba(17, 24, 39, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 .glass-card:hover {
   transform: translateY(-4px);
