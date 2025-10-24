@@ -82,6 +82,7 @@ export const postRouter = router({
         content: z.string().min(1),
         imageUrl: z.string().url().optional(),
         categoryIds: z.array(z.number()).optional(),
+        published: z.boolean().optional(),
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -93,6 +94,7 @@ export const postRouter = router({
           content: input.content,
           imageUrl: input.imageUrl ?? null,
           updatedAt: new Date(),
+          published: input.published ?? false,
         })
         .where(eq(posts.id, input.id));
 
